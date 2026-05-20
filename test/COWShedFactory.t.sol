@@ -13,7 +13,7 @@ contract COWShedFactoryTest is BaseTest {
     error ErrorSettingEns();
 
     function testExecuteHooks() external {
-        Vm.Wallet memory wallet = vm.createWallet("testWallet");
+        Vm.Wallet memory wallet = _createForkSafeWallet("testWallet");
         address addr1 = makeAddr("addr1");
         address addr2 = makeAddr("addr2");
 
@@ -45,7 +45,7 @@ contract COWShedFactoryTest is BaseTest {
             abi.encodePacked(ErrorSettingEns.selector)
         );
 
-        Vm.Wallet memory wallet = vm.createWallet("testWallet");
+        Vm.Wallet memory wallet = _createForkSafeWallet("testWallet");
         address addr1 = makeAddr("addr1");
         address addr2 = makeAddr("addr2");
 
@@ -66,8 +66,8 @@ contract COWShedFactoryTest is BaseTest {
     }
 
     function testDomainSeparators() external {
-        Vm.Wallet memory user1 = vm.createWallet("user1");
-        Vm.Wallet memory user2 = vm.createWallet("user2");
+        Vm.Wallet memory user1 = _createForkSafeWallet("user1");
+        Vm.Wallet memory user2 = _createForkSafeWallet("user2");
 
         _initializeUserProxy(user1);
         _initializeUserProxy(user2);

@@ -72,6 +72,8 @@ contract SmartWallet {
 }
 
 contract BaseTest is Test {
+    error BaseTest__NoForkSafeWallet(string seed);
+
     Vm.Wallet user;
     address userProxyAddr;
     COWShed userProxy;
@@ -94,7 +96,7 @@ contract BaseTest is Test {
         factory = new COWShedFactory(address(cowshedImpl), baseName, baseNode);
         assertEq(address(factory), factoryAddressExpected, "factory address as not expected");
 
-        user = vm.createWallet("user");
+        user = _createForkSafeWallet("user");
         userProxyAddr = factory.proxyOf(user.addr);
         userProxy = COWShed(payable(userProxyAddr));
         _initializeUserProxy(user);
@@ -210,5 +212,20 @@ contract BaseTest is Test {
     function _setOwnerForEns(bytes32 node, address owner) internal {
         vm.store(address(ENS), _recordOwnerSlotInEns(node), bytes32(uint256(uint160(address(owner)))));
         assertEq(ENS.owner(node), address(owner), "ens owner not set as expected");
+    }
+
+    function _createForkSafeWallet(string memory seed) internal returns (Vm.Wallet memory wallet) {
+        for (uint256 i = 0; i < 32;) {
+            wallet = vm.createWallet(string.concat(seed, "-", vm.toString(i)));
+            if (wallet.addr.code.length == 0) {
+                return wallet;
+            }
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        revert BaseTest__NoForkSafeWallet(seed);
     }
 }
